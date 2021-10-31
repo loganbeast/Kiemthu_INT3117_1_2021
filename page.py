@@ -17,6 +17,51 @@ class BasePage(object):
     def __init__(self, driver: WebDriver) -> None:
         self.driver = driver
 
+class ZingNew(BasePage):
+
+    def search(self):
+        GOOGLE_SEARCH = "//input[@aria-label='Search' or @aria-label='Tìm kiếm' or @name='q']"
+        driver = self.driver
+        driver.get('https://www.google.com/')
+        
+        wait_until_visible(driver, GOOGLE_SEARCH, 10)
+        # driver.find_element_by_xpath(GOOGLE_SEARCH).click()
+        try_input(driver, "Zing New", GOOGLE_SEARCH)
+        try_input(driver, Keys.ENTER, GOOGLE_SEARCH)
+        time.sleep(3)
+
+        wait_click(driver, ["//a[@href='https://zingnews.vn/']"])
+        return "ZINGNEWS.VN" in driver.title
+
+    def search_zingnews(self, content: str):
+        driver = self.driver
+        SEARCH_INPUT= "//input[@id='search_keyword']"
+        SEARCH_RESULT = "//section[@id='search-result']//p//strong"
+        driver.find_element_by_xpath("//button[@id='search_button']").click()
+        time.sleep(3)
+        try_input(driver, content, SEARCH_INPUT)
+        try_input(driver, Keys.ENTER, SEARCH_INPUT)
+        time.sleep(5)
+
+        return 0 != driver.find_element_by_xpath(SEARCH_RESULT).text
+    
+    def search_fail(self, content: str):
+        SEARCH_BOX = "//div[@class='search-box']//input"
+        search_box = self.driver.find_element_by_xpath(SEARCH_BOX)
+        search_box.clear()
+        time.sleep(3)
+        search_box.send_keys(content)
+        search_box.send_keys(Keys.ENTER)
+        time.sleep(5)
+        return "Không tìm thấy kết quả" in self.driver.find_element_by_xpath("//p[@class='message-not-found']").text
+
+
+
+
+
+        
+
+
 class FacebookPage(BasePage):
     """
     Through facebook page

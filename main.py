@@ -8,32 +8,30 @@ from selenium.webdriver.common.keys import Keys
 PATH = "/home/logan/Desktop/selenium_test/chromedriver_linux64/chromedriver"
 from helper.driver_helper import create_driver
 from page import FacebookPage
+from page import ZingNew
 
 USERNAME = "18021087@vnu.edu.vn"
 PASSWORD = "Nguyenthanhson18021087@"
 WRONGPASSWORD = "123456789"
-class FacebookLoginTest(unittest.TestCase):
+
+class ZingNewTest(unittest.TestCase):
     def setUp(self) -> None:
         self.driver = create_driver()
-        self.driver.get("https://www.facebook.com/")
-        self.facebook = FacebookPage(self.driver)
-        print("FacebookLoginTest starts!")
+        self.zingnews = ZingNew(self.driver)
+        print("ZingNew starts!!")
 
-    def test_login_wrong_password(self):
-        assert self.facebook.login(USERNAME, WRONGPASSWORD) == False
-
-    def test_login_facebook(self):
-        assert self.facebook.login(USERNAME, PASSWORD) 
+    def test_zingnew_search_from_google(self):
+        content = 'Pháp luật'
+        content_1 = "FAILED TEST"
+        #check search zing new from google
+        assert self.zingnews.search()
+        #check search article form Zingnew
+        assert self.zingnews.search_zingnews(content)
+        #check search failed case
+        assert self.zingnews.search_fail(content_1)
     
-    def test_sign_up_facebook(self):
-        kwargs = {"lastname": "Son", "firstname": "Nguyen", 
-                    "email": "test18021087@gmail.com", "password": "ASDAS@12312gsd@",
-                    "day": 18, "month": 9, "year": 2000}
-        assert self.facebook.sign_up(**kwargs)
-
     def tearDown(self) -> None:
-        print("Test login was finished successully!")
-        self.driver.close
+        self.driver.close()
         self.driver.quit()
 
 class FacebookFeatureTest(unittest.TestCase):
@@ -62,6 +60,30 @@ class FacebookFeatureTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         print("Test posting finished successully!")
+        self.driver.close
+        self.driver.quit()
+
+class FacebookLoginTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.driver = create_driver()
+        self.driver.get("https://www.facebook.com/")
+        self.facebook = FacebookPage(self.driver)
+        print("FacebookLoginTest starts!")
+
+    def test_login_wrong_password(self):
+        assert self.facebook.login(USERNAME, WRONGPASSWORD) == False
+
+    def test_login_facebook(self):
+        assert self.facebook.login(USERNAME, PASSWORD) 
+    
+    def test_sign_up_facebook(self):
+        kwargs = {"lastname": "Son", "firstname": "Nguyen", 
+                    "email": "test18021087@gmail.com", "password": "ASDAS@12312gsd@",
+                    "day": 18, "month": 9, "year": 2000}
+        assert self.facebook.sign_up(**kwargs)
+
+    def tearDown(self) -> None:
+        print("Test login was finished successully!")
         self.driver.close
         self.driver.quit()
 
