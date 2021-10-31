@@ -8,4 +8,7 @@ facebook = FacebookPage(driver)
 
 facebook.login(USERNAME, PASSWORD)
 
-facebook.post('postasdasdas')
+# facebook.post('Hom nay Helihe cac ban')
+# facebook.like()
+kwargs = {"name": "Nguyen Son", "city": "Ha Noi", "university": "Dai hoc cong nghe"}
+facebook.searching_friend(**kwargs)

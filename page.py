@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.keys import Keys
 PATH = "/home/logan/Desktop/selenium_test/chromedriver_linux64/chromedriver"
-from helper.driver_helper import create_driver, wait_click, wait_until_visible, try_input
+from helper.driver_helper import create_driver, go_to_element, wait_click, wait_until_visible, try_input
 
 class BasePage(object):
     """
@@ -16,6 +16,51 @@ class BasePage(object):
     """
     def __init__(self, driver: WebDriver) -> None:
         self.driver = driver
+
+class ZingNew(BasePage):
+
+    def search(self):
+        GOOGLE_SEARCH = "//input[@aria-label='Search' or @aria-label='Tìm kiếm' or @name='q']"
+        driver = self.driver
+        driver.get('https://www.google.com/')
+        
+        wait_until_visible(driver, GOOGLE_SEARCH, 10)
+        # driver.find_element_by_xpath(GOOGLE_SEARCH).click()
+        try_input(driver, "Zing New", GOOGLE_SEARCH)
+        try_input(driver, Keys.ENTER, GOOGLE_SEARCH)
+        time.sleep(3)
+
+        wait_click(driver, ["//a[@href='https://zingnews.vn/']"])
+        return "ZINGNEWS.VN" in driver.title
+
+    def search_zingnews(self, content: str):
+        driver = self.driver
+        SEARCH_INPUT= "//input[@id='search_keyword']"
+        SEARCH_RESULT = "//section[@id='search-result']//p//strong"
+        driver.find_element_by_xpath("//button[@id='search_button']").click()
+        time.sleep(3)
+        try_input(driver, content, SEARCH_INPUT)
+        try_input(driver, Keys.ENTER, SEARCH_INPUT)
+        time.sleep(5)
+
+        return 0 != driver.find_element_by_xpath(SEARCH_RESULT).text
+    
+    def search_fail(self, content: str):
+        SEARCH_BOX = "//div[@class='search-box']//input"
+        search_box = self.driver.find_element_by_xpath(SEARCH_BOX)
+        search_box.clear()
+        time.sleep(3)
+        search_box.send_keys(content)
+        search_box.send_keys(Keys.ENTER)
+        time.sleep(5)
+        return "Không tìm thấy kết quả" in self.driver.find_element_by_xpath("//p[@class='message-not-found']").text
+
+
+
+
+
+        
+
 
 class FacebookPage(BasePage):
     """
@@ -113,6 +158,7 @@ class FacebookPage(BasePage):
             time.sleep(3)
             if wait_click(self.driver, [SUBMIT_BUTTON]):
                 print("Post successfully!")
+                time.sleep(5)
                 return True
             else: 
                 return False
@@ -132,6 +178,8 @@ class FacebookPage(BasePage):
             message_input = driver.find_element_by_xpath(MESSAGE_INPUT)
             message_input.click()
             try_input(driver, content, MESSAGE_INPUT)
+            try_input(driver, "Testing successfully!")
+            try_input(driver, "End testing")
             
             # send message click
             try:
@@ -146,4 +194,93 @@ class FacebookPage(BasePage):
         except Exception as e:
             print(e)
             return False
+    
+    def like(self):
+        try:
+            time.sleep(5)
+            LIKE_XPATH = "//div[@aria-label='Thích' or @aria-label='Like']"
+            LIKE_ICON_XPATH = "//div[@aria-label='Thích' or @aria-label='Like']//span[text()='Thích' or text()='Like']"
+            # go to first like button
+            go_to_element(self.driver, LIKE_ICON_XPATH)
             
+            like_button_els = self.driver.find_elements_by_xpath(LIKE_XPATH)
+            if not len(like_button_els):
+                print('Like button not found!')
+                return False
+            like_button_els[0].click()
+            icon = self.driver.find_element_by_xpath(LIKE_ICON_XPATH)
+            icon_color = icon.get_attribute('style')
+            print(icon_color)
+            time.sleep(5)
+            return True 
+        except Exception as e:
+            print(f"Failed here: {e}")
+            return False
+    def send_friend_request(self, url: str):
+        # https://www.facebook.com/oinfamous
+        try:
+            self.driver.get(url)
+            ADD_FRIEND = "//div[@aria-label='Thêm bạn bè' and @role='button']"
+            DELETE_FRIEND = "//div[@aria-label='Hủy lời mời' and @role='button']"
+            if not wait_click(self.driver, [ADD_FRIEND]):
+                print('Add friend request not found!')
+                return False
+            if len(self.driver.find_elements_by_xpath(DELETE_FRIEND)) > 0:
+                print("Send friend request successfully!")
+                time.sleep(7)
+                return True
+            return False
+        except Exception as e:
+            print(e)
+            return False
+
+    def searching_friend(self, **kwargs):
+        try:
+            driver = self.driver
+            SEARCH_INPUT = "//input[@aria-label='Tìm kiếm trên Facebook' and @type='search']"
+            SEARCH_RESULT = "//div[@aria-label='Kết quả tìm kiếm']//div[@role='feed']/div/div"
+            PEOPLE_SEARCH = "//span[text()='Mọi người']"
+
+            FRIEND_XPATH = "//a[contains(@aria-label, 'Nguyễn Sơn (Logan)')]"
+            # CITY_SEARCH = "//span[text()='Tỉnh/Thành phố']"
+            # STUDY_SEARCH = "//span[text()='Học vấn']"
+            name = kwargs.get('name', '')
+            city = kwargs.get('city', '')
+            university = kwargs.get('university', '')
+            
+            wait_until_visible(driver, SEARCH_INPUT)
+            search_els = driver.find_element_by_xpath(SEARCH_INPUT)
+            # try to input search content
+            search_els.click()
+            try_input(driver, name, SEARCH_INPUT)
+            try_input(driver, Keys.ENTER, SEARCH_INPUT)
+
+            time.sleep(5)
+            wait_click(self.driver, [PEOPLE_SEARCH])
+
+            # wait_click(self.driver, [CITY_SEARCH])
+            # try_input(driver, city, CITY_SEARCH)
+            # time.sleep(2)
+            # try_input(driver, Keys.TAB, CITY_SEARCH)
+
+            # wait_click(self.driver, [STUDY_SEARCH])
+            # try_input(driver, university, STUDY_SEARCH)
+            # time.sleep(2)
+            # try_input(driver, Keys.TAB, STUDY_SEARCH)
+            
+            #time sleep
+            time.sleep(3)
+            search_result_els = driver.find_elements_by_xpath(SEARCH_RESULT)
+            if len(search_result_els) > 0:
+                friend_test = driver.find_elements_by_xpath(FRIEND_XPATH)
+                if len(friend_test) > 0:
+                    print("Find Nguyen Son successfully!")
+                    time.sleep(7)
+                    return True
+            return False
+        except Exception as e:
+            print(e)
+            return False
+
+
+        

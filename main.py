@@ -8,10 +8,61 @@ from selenium.webdriver.common.keys import Keys
 PATH = "/home/logan/Desktop/selenium_test/chromedriver_linux64/chromedriver"
 from helper.driver_helper import create_driver
 from page import FacebookPage
+from page import ZingNew
 
 USERNAME = "18021087@vnu.edu.vn"
 PASSWORD = "Nguyenthanhson18021087@"
 WRONGPASSWORD = "123456789"
+
+class ZingNewTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.driver = create_driver()
+        self.zingnews = ZingNew(self.driver)
+        print("ZingNew starts!!")
+
+    def test_zingnew_search_from_google(self):
+        content = 'Pháp luật'
+        content_1 = "FAILED TEST"
+        #check search zing new from google
+        assert self.zingnews.search()
+        #check search article form Zingnew
+        assert self.zingnews.search_zingnews(content)
+        #check search failed case
+        assert self.zingnews.search_fail(content_1)
+    
+    def tearDown(self) -> None:
+        self.driver.close()
+        self.driver.quit()
+
+class FacebookFeatureTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.driver = create_driver()
+        self.facebook = FacebookPage(self.driver)
+        print("FacebookFeatureTest starts!")
+        self.facebook.login(USERNAME, PASSWORD)
+        time.sleep(3)
+
+    def test_posting_and_like(self):
+        assert self.facebook.post("Test posting content!!")
+        time.sleep(3)
+        assert self.facebook.like()
+    
+    def test_search_friend(self):
+        kwargs = {"name": "Nguyen Son", "city": "Ha Noi", "university": "Dai hoc cong nghe"}
+        assert self.facebook.searching_friend(**kwargs)
+
+    def test_send_friend_request(self):
+        url = "https://www.facebook.com/oinfamous"
+        assert self.facebook.send_friend_request(url)
+
+    def test_send_message(self):
+        assert self.facebook.send_message(100011308354722, "Test send message")
+
+    def tearDown(self) -> None:
+        print("Test posting finished successully!")
+        self.driver.close
+        self.driver.quit()
+
 class FacebookLoginTest(unittest.TestCase):
     def setUp(self) -> None:
         self.driver = create_driver()
@@ -33,25 +84,6 @@ class FacebookLoginTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         print("Test login was finished successully!")
-        self.driver.close
-        self.driver.quit()
-
-class FacebookFeatureTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.driver = create_driver()
-        self.facebook = FacebookPage(self.driver)
-        print("FacebookFeatureTest starts!")
-        self.facebook.login(USERNAME, PASSWORD)
-        time.sleep(3)
-
-    def test_posting(self):
-        assert self.facebook.post("Test posting content!!")
-
-    def test_send_message(self):
-        assert self.facebook.send_message(100011308354722, "Test send message")
-
-    def tearDown(self) -> None:
-        print("Test posting finished successully!")
         self.driver.close
         self.driver.quit()
 
