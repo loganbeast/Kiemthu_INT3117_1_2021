@@ -44,8 +44,18 @@ class FacebookFeatureTest(unittest.TestCase):
         self.facebook.login(USERNAME, PASSWORD)
         time.sleep(3)
 
-    def test_posting(self):
+    def test_posting_and_like(self):
         assert self.facebook.post("Test posting content!!")
+        time.sleep(3)
+        assert self.facebook.like()
+    
+    def test_search_friend(self):
+        kwargs = {"name": "Nguyen Son", "city": "Ha Noi", "university": "Dai hoc cong nghe"}
+        assert self.facebook.searching_friend(**kwargs)
+
+    def test_send_friend_request(self):
+        url = "https://www.facebook.com/oinfamous"
+        assert self.facebook.send_friend_request(url)
 
     def test_send_message(self):
         assert self.facebook.send_message(100011308354722, "Test send message")
