@@ -14,7 +14,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 #===plz config correct path to Chrome driver when you run program. 
 #========
 PATH = "/home/logan/Desktop/selenium_test/chromedriver_linux64/chromedriver"
-
+#========
+#===plz config correct path to Chrome driver when you run program. 
+#========
 def create_driver() -> WebDriver:
     options = webdriver.ChromeOptions()
     # normal driver
@@ -37,7 +39,6 @@ def create_driver() -> WebDriver:
     return driver
 
 def wait_until_visible(driver: WebDriver, selector: str, timeout=5, method=None):
-    print(f"Wait {timeout} seconds until element is visible: {selector}")
     if method == None:
         if "//" in selector:
             method = 'xpath'

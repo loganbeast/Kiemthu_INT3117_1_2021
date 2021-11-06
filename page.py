@@ -1,10 +1,8 @@
 import time
-import unittest
-from selenium import webdriver
+import pickle
+import os
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.keys import Keys
 PATH = "/home/logan/Desktop/selenium_test/chromedriver_linux64/chromedriver"
@@ -61,15 +59,22 @@ class ZingNew(BasePage):
 
         
 
-
 class FacebookPage(BasePage):
     """
     Through facebook page
     """
-    user_name = '18021087@vnu.edu.vn'
+    user_name = 'sonnguyenthanh.uet18@gmail.com'
     password = 'Nguyenthanhson18021087@'
-    def login(self, user_name: str, password: str):
+    def login(self, user_name: str, password: str, test_login = False):
         self.driver.get("https://www.facebook.com/")
+        time.sleep(1)
+        if not test_login:
+            if os.path.isfile('./facebook_cookie.pkl'):
+                cookies = pickle.load(open("facebook_cookie.pkl", "rb"))
+                if cookies:
+                    for cookie in cookies:
+                        self.driver.add_cookie(cookie)
+                    self.driver.get("https://www.facebook.com/")
         try:
             username = self.driver.find_element_by_xpath('//input[@id="email"]')
             username.send_keys(user_name)
@@ -86,6 +91,7 @@ class FacebookPage(BasePage):
             # check
             current_driver = self.driver.current_url
             if "welcome" in current_driver:
+                pickle.dump(self.driver.get_cookies(), open("facebook_cookie.pkl", "wb"))
                 return True
             return False
         except WebDriverException as e:
